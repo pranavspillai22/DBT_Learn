@@ -1,0 +1,13 @@
+DBT Core Installation
+-Prerequisites
+##Python
+##VS Code
+##Snowflake Trial Account
+
+-Steps
+--I had python 3.14. DBT Core is compatible with 3.12 or below. So I downgraded version to 3.12.
+--VS Code Terminal - Go to cd "C:\Users\Desktop\DBT Prep\DBT_Project"
+--Create Virtual Environment - python -m venv dbt-env
+--Activate venv - dbt-env\Scripts\activate
+--Install DBT Core and Snowflake adapter - pip install dbt-snowflake
+--dbt --version (1.11.11 got installed)
