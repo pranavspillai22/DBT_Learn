@@ -1,0 +1,10 @@
+SELECT
+    product_id,
+    product_name,
+    category,
+    sub_category,
+    brand,
+    unit_price,
+    cost_price,
+    unit_price - cost_price AS profit_margin
+FROM {{ source('raw', 'dim_products') }}
