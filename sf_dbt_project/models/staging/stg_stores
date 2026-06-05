@@ -1,0 +1,9 @@
+SELECT
+    store_id,
+    store_name,
+    store_type,
+    region,
+    city,
+    state,
+    open_date
+FROM {{ source('raw', 'dim_stores') }}
