@@ -1,72 +1,96 @@
-DBT Core Installation
--Prerequisites
-##Python
-##VS Code
-##Snowflake Trial Account
+##DBT CORE INSTALLATION
+--Prerequisites
+  --Python
+  --VS Code
+  --Snowflake Trial Account
 
 -Steps
 --I had python 3.14. DBT Core is compatible with 3.12 or below. So I downgraded version to 3.12.
---VS Code Terminal - Go to cd "C:\Users\Desktop\DBT Prep\SF_DBT_Project"
+--VS Code Terminal - Go to Project folder
 --Create Virtual Environment - python -m venv dbt-env
 --Activate venv - dbt-env\Scripts\activate
 --Install DBT Core and Snowflake adapter - pip install dbt-snowflake
 --dbt --version (1.11.11 got installed)
 
-Snowflake Project Setup
+##SNOWFLAKE PROJECT SETUP
 --Create Database & Schema
-  CREATE DATABASE ECOMMERCE_DB;
-  CREATE SCHEMA ECOMMERCE_DB.RAW;
--- Create the tables
-  CREATE OR REPLACE TABLE ECOMMERCE_DB.RAW.CUSTOMERS (
-      CUSTOMER_ID INT,
-      FIRST_NAME STRING,
-      LAST_NAME STRING,
-      EMAIL STRING,
-      COUNTRY STRING
-  );
-  CREATE OR REPLACE TABLE ECOMMERCE_DB.RAW.PRODUCTS (
-      PRODUCT_ID INT,
-      PRODUCT_NAME STRING,
-      CATEGORY STRING,
-      PRICE FLOAT
-  );
-  CREATE OR REPLACE TABLE ECOMMERCE_DB.RAW.ORDERS (
-      ORDER_ID INT,
-      CUSTOMER_ID INT,
-      PRODUCT_ID INT,
-      ORDER_DATE DATE,
-      QUANTITY INT
-  );
+-- Create the tables -> Following Star Schema 
+  - 4 DIMENSION tables -> dim_customers, dim_products, dim_stores, dim_dates
+    FACT Table -> fact_orders
 
---Create DBT User
+##ARCHITECTURE
+            {{ source() }}                    {{ ref() }}
+RAW SCHEMA ----------------> STAGING SCHEMA -----------------> MARTS SCHEMA
+(dim_customers               (stg_customers                    (final_cube)
+ dim_products                 stg_products
+ dim_stores                   stg_stores
+ dim_dates                    stg_dates
+ fact_orders)                 stg_orders)
+
+##PROJECT STRUCTURE
+
+sf_dbt_project/
+|-- dbt_project.yml                 # Project configuration
+|-- profiles.yml                    # Snowflake connection settings
+|-- models/
+│   |-- sources.yml                 # Raw source table declarations
+│   |-- staging/
+│   |   |-- stg_orders.sql
+│   |   |-- stg_customers.sql
+│   |   |-- stg_products.sql
+│   |   |-- stg_stores.sql
+│   |   |-- stg_dates.sql
+│   |-- marts/
+│       |-- final_cube.sql          # Final aggregated table
+
+
+##Create a new User in Snowflake
   CREATE USER IF NOT EXISTS dbt 
       PASSWORD='dbtuser123'
       LOGIN_NAME='dbt'
       MUST_CHANGE_PASSWORD=FALSE
       DEFAULT_WAREHOUSE='COMPUTE_WH'
       DEFAULT_ROLE=ACCOUNTADMIN
-      DEFAULT_NAMESPACE='ECOMMERCE_DB.RAW';
+      DEFAULT_NAMESPACE='DBTPROJECT.RAW';
   GRANT ROLE ACCOUNTADMIN TO USER dbt;
 
---Create Stage to load data from S3 into Snowflake DB tables
----Created new user in AWS IAM, with S3FullAccess Permission. Created an Access Key
-  CREATE OR REPLACE STAGE my_stage
-  URL='s3://dbtlearn22/first_project'
-  CREDENTIALS=(AWS_KEY_ID='<key_id>' AWS_SECRET_KEY='<key>');
+##VS CODE SETUP
+  --In terminal, create new virtual environment under the project folder
+    python -m ven sfenv
+  --Activate venv -> sfenv\Scripts\activate
+  --Install dbt and snowflake adapter
+    pip install dbt-snowflake
 
---Load data from 3 csv files in S3 bucket to the 3 tables created in SF
-  COPY INTO customers
-  FROM '@my_stage/customers.csv'
-  FILE_FORMAT=(TYPE='CSV' SKIP_HEADER=1 FIELD_OPTIONALLY_ENCLOSED_BY='"');
-  COPY INTO products
-  FROM '@my_stage/products.csv'
-  FILE_FORMAT=(TYPE='CSV' SKIP_HEADER=1 FIELD_OPTIONALLY_ENCLOSED_BY='"');
-  COPY INTO orders
-  FROM '@my_stage/orders.csv'
-  FILE_FORMAT=(TYPE='CSV' SKIP_HEADER=1 FIELD_OPTIONALLY_ENCLOSED_BY='"');
+##DBT INITIALIZATION
+  --Created dbt project in vscode using 'dbt init'
+  --This step will create the dbt project folder with necessary folders. Also dbt_project.yml and profiles.yml files will be created.
+  --dbt_project.yml -> Brain of project. Central configuratiion file that tells DBT everything about the project.
+  --profiles.yml -> Helps DBT to connect with Snowflake. 
+  --Run 'dbt debug' to verify the connection.
 
---DBT init
-  Created dbt project in vscode using dbt init
-  Created profiles.yml file using 'mkdir %userprofile%\.dbt' & 'code %userprofile%\.dbt\profiles.yml'
-  Before dbt can transform data, it should recognize your raw tables. For that we need to create _sources.yml in staging folder
-  
+##DECLARE SOURCES ('sources.yml')
+  --Register raw tables so models reference them via '{{ source('raw', 'table_name') }}'
+  --We can add tests to check data quality
+
+##BUILD STAGING MODELS
+  --Each staging model:
+    - References source via '{{ source() }}'
+    - Selects and renames relevant columns
+    - Applies light transformations
+    - Materialized as 'views'
+
+##BUILD MART MODEL
+  --The 'final_cube.sql' model:
+    - JOINs fact table to all 4 dimensions
+    - Aggregates key business metrics
+    - Materialized as 'table' for fast dashboard queries
+
+##RUN DBT (compile, run, test)
+  --Run the below commands
+    --dbt compile -> validates SQL without executing and not touching Snowflake
+    --dbt run     -> executes against Snowflake
+    --dbt test    -> Test data quality
+
+##GENERATE DOCUMENTATION
+  --dbt docs generate
+  --dbt docs serve
