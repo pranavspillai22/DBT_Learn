@@ -1,0 +1,43 @@
+version: 2
+
+sources:
+  - name: raw
+    database: DBTPROJECT
+    schema: RAW
+    description: "Raw source tables for the star schema"
+    tables:
+      - name: fact_orders
+        description: "One row per order line item"
+        columns:
+          - name: order_id
+            tests:
+              - unique
+              - not_null
+      - name: dim_customers
+        description: "Customer dimension"
+        columns:
+          - name: customer_id
+            tests:
+              - unique
+              - not_null
+      - name: dim_products
+        description: "Product dimension"
+        columns:
+          - name: product_id
+            tests:
+              - unique
+              - not_null
+      - name: dim_stores
+        description: "Store dimension"
+        columns:
+          - name: store_id
+            tests:
+              - unique
+              - not_null
+      - name: dim_dates
+        description: "Date dimension"
+        columns:
+          - name: date_key
+            tests:
+              - unique
+              - not_null
