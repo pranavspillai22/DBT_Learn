@@ -1,0 +1,10 @@
+SELECT
+    date_key,
+    year,
+    quarter,
+    month,
+    month_name,
+    day_of_week,
+    day_name,
+    is_weekend
+FROM {{ source('raw', 'dim_dates') }}
