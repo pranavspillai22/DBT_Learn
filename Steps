@@ -6,8 +6,67 @@ DBT Core Installation
 
 -Steps
 --I had python 3.14. DBT Core is compatible with 3.12 or below. So I downgraded version to 3.12.
---VS Code Terminal - Go to cd "C:\Users\Desktop\DBT Prep\DBT_Project"
+--VS Code Terminal - Go to cd "C:\Users\Desktop\DBT Prep\SF_DBT_Project"
 --Create Virtual Environment - python -m venv dbt-env
 --Activate venv - dbt-env\Scripts\activate
 --Install DBT Core and Snowflake adapter - pip install dbt-snowflake
 --dbt --version (1.11.11 got installed)
+
+Snowflake Project Setup
+--Create Database & Schema
+  CREATE DATABASE ECOMMERCE_DB;
+  CREATE SCHEMA ECOMMERCE_DB.RAW;
+-- Create the tables
+  CREATE OR REPLACE TABLE ECOMMERCE_DB.RAW.CUSTOMERS (
+      CUSTOMER_ID INT,
+      FIRST_NAME STRING,
+      LAST_NAME STRING,
+      EMAIL STRING,
+      COUNTRY STRING
+  );
+  CREATE OR REPLACE TABLE ECOMMERCE_DB.RAW.PRODUCTS (
+      PRODUCT_ID INT,
+      PRODUCT_NAME STRING,
+      CATEGORY STRING,
+      PRICE FLOAT
+  );
+  CREATE OR REPLACE TABLE ECOMMERCE_DB.RAW.ORDERS (
+      ORDER_ID INT,
+      CUSTOMER_ID INT,
+      PRODUCT_ID INT,
+      ORDER_DATE DATE,
+      QUANTITY INT
+  );
+
+--Create DBT User
+  CREATE USER IF NOT EXISTS dbt 
+      PASSWORD='dbtuser123'
+      LOGIN_NAME='dbt'
+      MUST_CHANGE_PASSWORD=FALSE
+      DEFAULT_WAREHOUSE='COMPUTE_WH'
+      DEFAULT_ROLE=ACCOUNTADMIN
+      DEFAULT_NAMESPACE='ECOMMERCE_DB.RAW';
+  GRANT ROLE ACCOUNTADMIN TO USER dbt;
+
+--Create Stage to load data from S3 into Snowflake DB tables
+---Created new user in AWS IAM, with S3FullAccess Permission. Created an Access Key
+  CREATE OR REPLACE STAGE my_stage
+  URL='s3://dbtlearn22/first_project'
+  CREDENTIALS=(AWS_KEY_ID='<key_id>' AWS_SECRET_KEY='<key>');
+
+--Load data from 3 csv files in S3 bucket to the 3 tables created in SF
+  COPY INTO customers
+  FROM '@my_stage/customers.csv'
+  FILE_FORMAT=(TYPE='CSV' SKIP_HEADER=1 FIELD_OPTIONALLY_ENCLOSED_BY='"');
+  COPY INTO products
+  FROM '@my_stage/products.csv'
+  FILE_FORMAT=(TYPE='CSV' SKIP_HEADER=1 FIELD_OPTIONALLY_ENCLOSED_BY='"');
+  COPY INTO orders
+  FROM '@my_stage/orders.csv'
+  FILE_FORMAT=(TYPE='CSV' SKIP_HEADER=1 FIELD_OPTIONALLY_ENCLOSED_BY='"');
+
+--DBT init
+  Created dbt project in vscode using dbt init
+  Created profiles.yml file using 'mkdir %userprofile%\.dbt' & 'code %userprofile%\.dbt\profiles.yml'
+  Before dbt can transform data, it should recognize your raw tables. For that we need to create _sources.yml in staging folder
+  
