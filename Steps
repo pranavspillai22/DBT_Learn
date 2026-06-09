@@ -94,3 +94,21 @@ sf_dbt_project/
 ##GENERATE DOCUMENTATION
   --dbt docs generate
   --dbt docs serve
+
+
+##STREAMS
+  --Stream is essentially a change data capture (CDC) mechanism. It records row-level changes (DML operations) made to a source table since the last time the stream was consumed.
+  --Change Tracking: When enabled, Snowflake maintains hidden metadata about row changes. This metadata is what streams query to return only the "delta" (new/changed/deleted rows).
+  --If CHANGE_TRACKING is not set to TRUE, you can still query the table normally, but streams won’t be able to capture incremental changes.
+  --Create streams for all the raw tables
+    ALTER TABLE DBTPROJECT.RAW.FACT_ORDERS SET CHANGE_TRACKING = TRUE;
+    ALTER TABLE DBTPROJECT.RAW.DIM_CUSTOMERS SET CHANGE_TRACKING = TRUE;
+    ALTER TABLE DBTPROJECT.RAW.DIM_PRODUCTS SET CHANGE_TRACKING = TRUE;
+    ALTER TABLE DBTPROJECT.RAW.DIM_STORES SET CHANGE_TRACKING = TRUE;
+    ALTER TABLE DBTPROJECT.RAW.DIM_DATES SET CHANGE_TRACKING = TRUE;
+
+  --Capture the changes in streams
+  
+  --Add timestamp field on Final_Cube
+  
+  
