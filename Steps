@@ -101,13 +101,10 @@ sf_dbt_project/
   --Change Tracking: When enabled, Snowflake maintains hidden metadata about row changes. This metadata is what streams query to return only the "delta" (new/changed/deleted rows).
   --If CHANGE_TRACKING is not set to TRUE, you can still query the table normally, but streams won’t be able to capture incremental changes.
   --Create streams for all the raw tables
-    ALTER TABLE DBTPROJECT.RAW.FACT_ORDERS SET CHANGE_TRACKING = TRUE;
-    ALTER TABLE DBTPROJECT.RAW.DIM_CUSTOMERS SET CHANGE_TRACKING = TRUE;
-    ALTER TABLE DBTPROJECT.RAW.DIM_PRODUCTS SET CHANGE_TRACKING = TRUE;
-    ALTER TABLE DBTPROJECT.RAW.DIM_STORES SET CHANGE_TRACKING = TRUE;
-    ALTER TABLE DBTPROJECT.RAW.DIM_DATES SET CHANGE_TRACKING = TRUE;
-
-  --Capture the changes in streams
+  --Update a record in the 'Dim_Customers' table
+    --Capture the changes in streams
+      --Before Updating the table
+        ![Alt text](/sf_dbt_project/Before_Update_Customers_Stream.png)
   
   --Add timestamp field on Final_Cube
   
