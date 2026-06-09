@@ -104,8 +104,19 @@ sf_dbt_project/
   --Update a record in the 'Dim_Customers' table
     --Capture the changes in streams
       --Before Updating the table
-        ![Alt text](/sf_dbt_project/Before_Update_Customers_Stream.png)
-  
+        https://github.com/pranavspillai22/DBT_Learn/blob/d14fc29c4310b51ade6b59a15ebef5a4146e598f/Before_Update_Customers_Stream.png
+      --After Updating the table, in streams 2 records got populated in STREAM_STG_CUSTOMERS, one for Delete and one for Insert
+        https://github.com/pranavspillai22/DBT_Learn/blob/d14fc29c4310b51ade6b59a15ebef5a4146e598f/After_Update_Customers_Stream_1.png
+        https://github.com/pranavspillai22/DBT_Learn/blob/d14fc29c4310b51ade6b59a15ebef5a4146e598f/After_Update_Customers_Stream_2.png
+        
+        https://github.com/pranavspillai22/DBT_Learn/blob/d14fc29c4310b51ade6b59a15ebef5a4146e598f/After_Insert_Orders_Stream_1.png
+        https://github.com/pranavspillai22/DBT_Learn/blob/d14fc29c4310b51ade6b59a15ebef5a4146e598f/After_Insert_Orders_Stream_2.png
+
+  --Insert a new record in 'Fact_Orders' table
+    --Before Inserting the table
+      https://github.com/pranavspillai22/DBT_Learn/blob/d14fc29c4310b51ade6b59a15ebef5a4146e598f/Before_Insert_Orders_Stream.png
+    --After inserting, one record got populated in STREAM_STG_ORDERS, for Insert
+
   --Add timestamp field on Final_Cube
-  
+    --Added 'created_at' field in the final mart table to track changes
   
